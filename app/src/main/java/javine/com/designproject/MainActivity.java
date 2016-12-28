@@ -1,5 +1,6 @@
 package javine.com.designproject;
 
+import android.app.Activity;
 import android.app.ActivityOptions;
 import android.content.Intent;
 import android.support.design.widget.AppBarLayout;
@@ -24,7 +25,7 @@ import com.kogitune.activity_transition.ActivityTransitionLauncher;
 
 import javine.com.designproject.clipproxy.ClipProxyHelper;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends Activity {
     TextView tv_first;
     View v_second;
     private float beginY;
@@ -63,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void goNextActivity() {
-        Intent intent = new Intent(this,SubActivity.class);
+        Intent intent = new Intent(this,TargetActivity.class);
         startActivity(intent,ActivityOptions.makeSceneTransitionAnimation(this,imageView,"image").toBundle());
     }
 
