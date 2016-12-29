@@ -1,5 +1,6 @@
 package javine.com.designproject.amsproxy;
 
+import android.os.Handler;
 import android.os.IBinder;
 
 import java.lang.reflect.Field;
@@ -27,6 +28,24 @@ public class AMSProxyHelper {
             Object proxyAm = Proxy.newProxyInstance(activityManagerNativeClass.getClassLoader(),
                     new Class<?>[]{iActivityManagerInterface},new AMSHookHandler(mInstance));
             mInstanceField.set(gDefault,proxyAm);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void hookActivityThread(){
+        try {
+            Class<?> activityThreadClass = Class.forName("android.app.ActivityThread");
+            Method currentActivityThread = activityThreadClass.getDeclaredMethod("currentActivityThread");
+            Object activityThreadObject = currentActivityThread.invoke(null);
+
+            Field mHField = activityThreadClass.getDeclaredField("mH");
+            mHField.setAccessible(true);
+            Handler mH = (Handler) mHField.get(activityThreadObject);
+
+            Field mCallbackField = Handler.class.getDeclaredField("mCallback");
+            mCallbackField.setAccessible(true);
+            mCallbackField.set(mH,new TargetHandlerCallback(mH));
         } catch (Exception e) {
             e.printStackTrace();
         }

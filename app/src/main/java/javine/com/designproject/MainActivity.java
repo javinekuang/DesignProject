@@ -23,6 +23,7 @@ import android.widget.TextView;
 
 import com.kogitune.activity_transition.ActivityTransitionLauncher;
 
+import javine.com.designproject.amsproxy.AMSProxyHelper;
 import javine.com.designproject.clipproxy.ClipProxyHelper;
 
 public class MainActivity extends Activity {
@@ -55,6 +56,8 @@ public class MainActivity extends Activity {
         getWindow().setEnterTransition(new Fade().setDuration(1000));
         getWindow().setExitTransition(new Fade().setDuration(1000));
         ClipProxyHelper.hookClipBoardService();
+        AMSProxyHelper.hookActivityManagerNative();
+        AMSProxyHelper.hookActivityThread();
     }
 
     @Override
