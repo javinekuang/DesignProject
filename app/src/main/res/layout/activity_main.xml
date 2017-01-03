@@ -61,8 +61,17 @@
                 <EditText
                     android:id="@+id/edit_text"
                     android:layout_width="match_parent"
-                    android:layout_height="250dp"
+                    android:layout_height="150dp"
                     android:gravity="bottom"/>
+
+                <Button
+                    android:id="@+id/btn_send"
+                    android:layout_width="match_parent"
+                    android:layout_height="45dp"
+                    android:layout_margin="15dp"
+                    android:background="@color/colorPrimary"
+                    android:text="send broadcast to plugin"
+                    android:textColor="@android:color/white"/>
 
                 <TextView
                     android:id="@+id/first"
