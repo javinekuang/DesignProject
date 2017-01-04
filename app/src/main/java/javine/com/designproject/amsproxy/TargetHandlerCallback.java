@@ -1,11 +1,14 @@
 package javine.com.designproject.amsproxy;
 
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 
 import javine.com.designproject.util.HookHelper;
 
@@ -52,8 +55,36 @@ public class TargetHandlerCallback implements Handler.Callback {
             Intent targetIntent = (Intent) intentField.get(obj);
             Intent originIntent = targetIntent.getParcelableExtra(HookHelper.EXTRA_TARGET_INTENT);
             targetIntent.setComponent(originIntent.getComponent());
+
+            Field activityInfoField = obj.getClass().getDeclaredField("activityInfo");
+            activityInfoField.setAccessible(true);
+            ActivityInfo activityInfo = (ActivityInfo) activityInfoField.get(obj);
+            activityInfo.applicationInfo.packageName = originIntent.getPackage() == null?
+                    originIntent.getComponent().getPackageName():originIntent.getPackage();
+            hookPackageManager();
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private void hookPackageManager() throws Exception{
+        //initializeJavaContextClassLoader方法内部检查了包是否在系统安装，需要绕过这个检查
+        Class<?> activityThreadClass = Class.forName("android.app.ActivityThread");
+        Method currentActivityThreadMethod = activityThreadClass.getDeclaredMethod("currentActivityThread");
+        currentActivityThreadMethod.setAccessible(true);
+        Object currentActivityThread = currentActivityThreadMethod.invoke(null);
+
+        //获取原始的sPackageManager
+        Field sPackageManagerField = activityThreadClass.getDeclaredField("sPackageManager");
+        sPackageManagerField.setAccessible(true);
+        Object sPackageManager = sPackageManagerField.get(currentActivityThread);
+
+        //生成代理对象
+        Class<?> iPackageManagerInterface = Class.forName("android.content.pm.IPackageManager");
+        Object proxy = Proxy.newProxyInstance(iPackageManagerInterface.getClassLoader(),
+                new Class<?>[]{iPackageManagerInterface},
+                new PMSHookHandler(sPackageManager));
+        //替换对象
+        sPackageManagerField.set(currentActivityThread,proxy);
     }
 }
