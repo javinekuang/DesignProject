@@ -54,14 +54,15 @@ public class TargetHandlerCallback implements Handler.Callback {
             intentField.setAccessible(true);
             Intent targetIntent = (Intent) intentField.get(obj);
             Intent originIntent = targetIntent.getParcelableExtra(HookHelper.EXTRA_TARGET_INTENT);
-            targetIntent.setComponent(originIntent.getComponent());
-
-            Field activityInfoField = obj.getClass().getDeclaredField("activityInfo");
-            activityInfoField.setAccessible(true);
-            ActivityInfo activityInfo = (ActivityInfo) activityInfoField.get(obj);
-            activityInfo.applicationInfo.packageName = originIntent.getPackage() == null?
-                    originIntent.getComponent().getPackageName():originIntent.getPackage();
-            hookPackageManager();
+            if (originIntent != null){
+                targetIntent.setComponent(originIntent.getComponent());
+                Field activityInfoField = obj.getClass().getDeclaredField("activityInfo");
+                activityInfoField.setAccessible(true);
+                ActivityInfo activityInfo = (ActivityInfo) activityInfoField.get(obj);
+                activityInfo.applicationInfo.packageName = originIntent.getPackage() == null?
+                        originIntent.getComponent().getPackageName():originIntent.getPackage();
+                hookPackageManager();
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -43,6 +43,12 @@ public class AMSHookHandler implements InvocationHandler {
             newIntent.putExtra(HookHelper.EXTRA_TARGET_INTENT,originIntent);
             args[index] = newIntent;
             return method.invoke(base, args);
+        }else if ("registerReceiver".equals(method.getName())){
+            String packageName = (String) args[1];
+            String hostPackageString = "javine.com.designproject";;
+            if (!hostPackageString.equals(packageName)){
+                args[1] = hostPackageString;
+            }
         }
         return method.invoke(base,args);
     }

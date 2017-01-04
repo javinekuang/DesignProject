@@ -40,6 +40,7 @@ import javine.com.designproject.util.Utils;
 public class MainActivity extends Activity {
 
     static final String ACTION = "com.weishu.upf.demo.app2.PLUGIN_ACTION";
+    static final String PLUGIN_ACTION = "javine.com.pluginproject_playback";
 
     TextView tv_first;
     View v_second;
@@ -77,10 +78,6 @@ public class MainActivity extends Activity {
         });
         getWindow().setEnterTransition(new Fade().setDuration(1000));
         getWindow().setExitTransition(new Fade().setDuration(1000));
-        ClipProxyHelper.hookClipBoardService();
-        AMSProxyHelper.hookActivityManagerNative();
-        AMSProxyHelper.hookActivityThread();
-
         registerReceiver(mReceiver, new IntentFilter(ACTION));
     }
 
@@ -92,26 +89,14 @@ public class MainActivity extends Activity {
                 ex_str = "插件插件，我是主程序，握手完成";
             }
             Toast.makeText(context, ex_str, Toast.LENGTH_SHORT).show();
+            //向PluginApk中发送广播，测试Plugin动态注册
+            sendBroadcast(new Intent(PLUGIN_ACTION));
         }
     };
 
     private void sendToPluginBroadcast() {
         Toast.makeText(getApplicationContext(), "插件插件，收到请回答！", Toast.LENGTH_SHORT).show();
         sendBroadcast(new Intent("javine.com.pluginproject.REQUEST"));
-    }
-
-    @Override
-    protected void attachBaseContext(Context newBase) {
-        super.attachBaseContext(newBase);
-        Utils.extractAsserts(this, "test.apk");
-        File testPlugin = getFileStreamPath("test.apk");
-        try {
-            HookReceiverHelper.preLoadReceiver(this, testPlugin);
-            ClassLoaderProxyHelper.hookLoadedApkInActivityThread(testPlugin);
-            Log.i(getClass().getSimpleName(), "hook success");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     @Override

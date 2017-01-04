@@ -10,6 +10,7 @@ import android.util.Log;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +23,8 @@ public class HookReceiverHelper {
 
     public static Map<ActivityInfo, List<? extends IntentFilter>> sCache =
             new HashMap<>();
+
+    private static List<BroadcastReceiver> sRegisteredReceiver = new ArrayList<>();
 
     private static void parseReceivers(File apkFile) throws Exception {
         Class<?> packageParserClass = Class.forName("android.content.pm.PackageParser");
@@ -66,7 +69,16 @@ public class HookReceiverHelper {
             for (IntentFilter intentFilter : intentFilters){
                 BroadcastReceiver receiver = (BroadcastReceiver) cl.loadClass(activityInfo.name).newInstance();
                 context.registerReceiver(receiver, intentFilter);
+                sRegisteredReceiver.add(receiver);
             }
         }
+    }
+
+    public static void unregisterReceiver(Context context){
+        for (BroadcastReceiver receiver : sRegisteredReceiver){
+            context.unregisterReceiver(receiver);
+        }
+        sRegisteredReceiver.clear();
+        sCache.clear();
     }
 }
