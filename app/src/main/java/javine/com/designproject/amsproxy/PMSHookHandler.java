@@ -18,7 +18,7 @@ public class PMSHookHandler implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        if (method.getName().equals("getPackageInfo")){
+        if (method.getName().equals("getPackageInfo")){//绕过系统对packageName的验证
             return new PackageInfo();
         }
         return method.invoke(mBase, args);

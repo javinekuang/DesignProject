@@ -46,6 +46,20 @@ public class AMSProxyHelper {
             Field mCallbackField = Handler.class.getDeclaredField("mCallback");
             mCallbackField.setAccessible(true);
             mCallbackField.set(mH,new TargetHandlerCallback(mH));
+
+            //hook PMS, 绕过系统对packageName的验证
+            //获取原始的sPackageManager
+            Field sPackageManagerField = activityThreadClass.getDeclaredField("sPackageManager");
+            sPackageManagerField.setAccessible(true);
+            Object sPackageManager = sPackageManagerField.get(currentActivityThread);
+
+            //生成代理对象
+            Class<?> iPackageManagerInterface = Class.forName("android.content.pm.IPackageManager");
+            Object proxy = Proxy.newProxyInstance(iPackageManagerInterface.getClassLoader(),
+                    new Class<?>[]{iPackageManagerInterface},
+                    new PMSHookHandler(sPackageManager));
+            //替换对象
+            sPackageManagerField.set(currentActivityThread,proxy);
         } catch (Exception e) {
             e.printStackTrace();
         }

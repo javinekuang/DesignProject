@@ -7,6 +7,8 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
+import android.os.IBinder;
 import android.support.design.widget.AppBarLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
@@ -43,13 +45,23 @@ public class MainActivity extends Activity {
     static final String PLUGIN_ACTION = "javine.com.pluginproject_playback";
 
     TextView tv_first;
-    View v_second;
     private float beginY;
-    Toolbar toolbar;
     ImageView imageView;
     AppBarLayout appBarLayout;
     EditText editText;
     Button btnSend;
+
+    private ServiceConnection mServiceConn = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,6 +91,9 @@ public class MainActivity extends Activity {
         getWindow().setEnterTransition(new Fade().setDuration(1000));
         getWindow().setExitTransition(new Fade().setDuration(1000));
         registerReceiver(mReceiver, new IntentFilter(ACTION));
+        Intent serviceIntent = new Intent();
+        serviceIntent.setComponent(new ComponentName("javine.com.pluginproject","javine.com.pluginproject.PluginService"));
+        startService(serviceIntent);
     }
 
     BroadcastReceiver mReceiver = new BroadcastReceiver() {

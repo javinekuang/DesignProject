@@ -18,6 +18,8 @@
         </activity>
 
         <activity android:name=".SubActivity"/>
+        <service android:name=".ProxyService"
+                 android:process=":plugin"/>
     </application>
 
 </manifest>
